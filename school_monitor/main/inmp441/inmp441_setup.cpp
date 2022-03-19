@@ -1,3 +1,6 @@
+#include "global_data.h"
+
+#ifdef INMP441_SENSOR
 #include "inmp441_setup.h"
 
 inmp441_t Leq_dB = {0};
@@ -310,3 +313,4 @@ void mic_i2s_filter_task(void *pvParameters) {
         }
     }
 }
+#endif

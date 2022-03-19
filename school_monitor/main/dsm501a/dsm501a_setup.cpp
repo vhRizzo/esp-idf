@@ -1,3 +1,7 @@
+#include "global_data.h"
+
+#ifdef DSM501A_SENSOR
+
 #include "dsm501a_setup.h"
 
 QueueHandle_t dsm_queue;
@@ -90,3 +94,4 @@ void dsm501a_task( void *pvParameters )
         gpio_isr_handler_add(DSM501a_YELLOW_PIN, change_v1_isr, (void*) DSM501a_YELLOW_PIN);
     }
 }
+#endif

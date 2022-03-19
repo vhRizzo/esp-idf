@@ -6,4 +6,5 @@ idf_component_register(SRCS "main.cpp"
                             "bme280/bme280_setup.cpp" 
                             "bme280/bme280.c" 
                             "dsm501a/dsm501a_setup.cpp"
-                    INCLUDE_DIRS "bme280" "dsm501a" "inmp441" "misc" ".")
+                            "neo6m/neo6m_setup.cpp"
+                    INCLUDE_DIRS "neo6m" "bme280" "dsm501a" "inmp441" "misc" ".")

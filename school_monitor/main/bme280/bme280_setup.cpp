@@ -1,3 +1,6 @@
+#include "global_data.h"
+
+#ifdef BME280_SENSOR
 #include "bme280_setup.h"
 
 struct bme280_data comp_data;
@@ -142,3 +145,4 @@ void bme280_task(void *pvParameters)
         store_data(&comp_data);
     }
 }
+#endif
