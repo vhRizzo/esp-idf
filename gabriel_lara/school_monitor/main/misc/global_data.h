@@ -24,6 +24,7 @@
 #define _INMP_DB_TOPIC  "gabriel_lara/inmp441/_dB_"
 #define _NEO_LAT_TOPIC  "gabriel_lara/_neo6m_/_lat"
 #define _NEO_LNG_TOPIC  "gabriel_lara/_neo6m_/_lng"
+#define OTA_TRIG_TOPIC  "gabriel_lara/otatrig/_ota"
 
 /* OTA */
 #define OTA_FIRM_URL    "http://iot.coenc.ap.utfpr.edu.br/atualizar/gabriel_lara/school_monitor.bin"
@@ -100,5 +101,7 @@ typedef struct __attribute__((__packed__)) //esse atributo informa ao compilador
     double ruido;
     float coord[2];          //8 bytes
 } dados_t;
+
+extern esp_mqtt_client_handle_t client;
 
 #endif /* GLOBAL_DATA_H */
