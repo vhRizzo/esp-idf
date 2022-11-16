@@ -2,10 +2,14 @@
 #include "Modem_SmartModular.hpp"
 
 dados_t dados;
+char tmp[100];
 char rcv[1000];
+char rcv_gps[1000];
 uint16_t porta = 20;      //aqui deve-se escolhar >=1 , sendo útil para indicar qual parte da aplicação pertence o dado obtido!!!!
 uint32_t rcv_size = 0;
 uint32_t send_size = 0;
+uint16_t porta_gps = 19;
+uint32_t rcv_gps_size = 0;
 Modem_SmartModular teste(UART_NUM_2);
 int cont_gps = (int)floor(CONTAGEM_GPS*(2./3.));
 
@@ -29,7 +33,8 @@ void rcv_data_task ( void *pvParameters )
     dados.coord[0] = -1;
     dados.coord[1] = -1;
     memset(rcv,0,1000);
-
+    memset(rcv_gps,0,1000);
+    
     if(strcmp(teste.auto_join(),"0")==0){
         ESP_LOGI("APP", "AutoJoin ativado: %s", teste.auto_join(1));
     }
@@ -95,28 +100,22 @@ void send_data_timer (void *arg)
     //             dados.poeira_pm_10, dados.poeira_pm_25, 
     //             dados.coord[0], dados.coord[1]);
 
+    char tmp[100];
+    sprintf(tmp, "%.2f,%.2f,%d;%.2f,%.2f", 
+            dados.temperatura, dados.umidade, dados.pressao, 
+            dados.poeira_pm_10, dados.poeira_pm_25);
+    send_size = strlen(tmp);
+    ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i", tmp_38, send_size);
+    // teste.enviar_receber(porta, tmp, send_size, rcv, &rcv_size);
+    ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv, (int)rcv_size);
+    cont_gps++;
     if (cont_gps >= CONTAGEM_GPS) {
-        char tmp_61[62];
-        sprintf(tmp_61, "%.2f,%.2f,%d;%.2f,%.2f;%.6f,%.6f", 
-                dados.temperatura, dados.umidade, dados.pressao, 
-                dados.poeira_pm_10, dados.poeira_pm_25, 
-                dados.coord[0], dados.coord[1]);
-        send_size = strlen(tmp_61);
-        ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i", tmp_61, send_size);
-        // teste.enviar_receber(porta, tmp_61, send_size, rcv, &rcv_size);
-        ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv, (int)rcv_size);
+        char tmp_gps[100];
+        sprintf(tmp_gps, "%.6f,%.6f", dados.coord[0], dados.coord[1]);
+        send_size = strlen(tmp_gps);
+        ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i", tmp_gps, send_size);
+        // teste.enviar_receber(porta_gps, tmp_gps, send_size, rcv_gps, &rcv_gps_size);
+        ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv_gps, (int)rcv_gps_size);
         cont_gps = 0;
-    } 
-    
-    else {
-        char tmp_38[39];
-        sprintf(tmp_38, "%.2f,%.2f,%d;%.2f,%.2f", 
-                dados.temperatura, dados.umidade, dados.pressao, 
-                dados.poeira_pm_10, dados.poeira_pm_25);
-        send_size = strlen(tmp_38);
-        ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i", tmp_38, send_size);
-        // teste.enviar_receber(porta, tmp_38, send_size, rcv, &rcv_size);
-        ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv, (int)rcv_size);
-        cont_gps++;
     }
 }
