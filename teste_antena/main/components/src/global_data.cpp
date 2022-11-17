@@ -105,7 +105,7 @@ void send_data_timer (void *arg)
             dados.temperatura, dados.umidade, dados.pressao, 
             dados.poeira_pm_10, dados.poeira_pm_25);
     send_size = strlen(tmp);
-    ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i", tmp, send_size);
+    ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i | PORTA: %d", tmp, send_size, porta);
     // teste.enviar_receber(porta, tmp, send_size, rcv, &rcv_size);
     ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv, (int)rcv_size);
     cont_gps++;
@@ -113,7 +113,7 @@ void send_data_timer (void *arg)
         char tmp_gps[100];
         sprintf(tmp_gps, "%.6f,%.6f", dados.coord[0], dados.coord[1]);
         send_size = strlen(tmp_gps);
-        ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i", tmp_gps, send_size);
+        ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i | PORTA: %d", tmp_gps, send_size, porta_gps);
         // teste.enviar_receber(porta_gps, tmp_gps, send_size, rcv_gps, &rcv_gps_size);
         ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv_gps, (int)rcv_gps_size);
         cont_gps = 0;
