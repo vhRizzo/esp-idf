@@ -94,25 +94,33 @@ void send_data_timer (void *arg)
                 dados.ruido, 
                 dados.coord[0], dados.coord[1]);
             
-    char tmp[21];
-    sprintf(tmp, "%.2f", dados.temperatura);
-    esp_mqtt_client_publish(client, BME_TEMP_TOPIC, tmp, 0, 0, 0);
-    sprintf(tmp, "%.2f", dados.umidade);
-    esp_mqtt_client_publish(client, BME_UMID_TOPIC, tmp, 0, 0, 0);
-    sprintf(tmp, "%d", dados.pressao);
-    esp_mqtt_client_publish(client, BME_PRES_TOPIC, tmp, 0, 0, 0);
-    sprintf(tmp, "%.2f", dados.poeira_pm_10);
-    esp_mqtt_client_publish(client, DSM_PM10_TOPIC, tmp, 0, 0, 0);
-    sprintf(tmp, "%.2f", dados.poeira_pm_25);
-    esp_mqtt_client_publish(client, DSM_PM25_TOPIC, tmp, 0, 0, 0);
-    sprintf(tmp, "%.2f", dados.ruido);
-    esp_mqtt_client_publish(client, _INMP_DB_TOPIC, tmp, 0, 0, 0);
+    char topic[51];
+    char data[51];
+    sprintf(topic, "%s/bme280", CLIENT_ID);
+    sprintf(data, "{temperatura:%.2f}", dados.temperatura);
+    esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
+    sprintf(data, "{umidade:%.2f}", dados.umidade);
+    esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
+    sprintf(data, "{pressao:%d}", dados.pressao);
+    esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
+
+    sprintf(topic, "%s/dsm501a", CLIENT_ID);
+    sprintf(data, "{poeira_pm_10:%.2f}", dados.poeira_pm_10);
+    esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
+    sprintf(data, "{poeira_pm_25:%.2f}", dados.poeira_pm_25);
+    esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
+    
+    sprintf(topic, "%s/inmp441", CLIENT_ID);
+    sprintf(data, "{ruido:%.2f}", dados.ruido);
+    esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
+    
+    sprintf(topic, "%s/neo6m", CLIENT_ID);
     if (abs(dados.coord[0]) <= 90 && dados.coord[0] != 0) {
-        sprintf(tmp, "%.6f", dados.coord[0]);
-        esp_mqtt_client_publish(client, _NEO_LAT_TOPIC, tmp, 0, 0, 0);
+        sprintf(data, "{gps_latitude:%.6f}", dados.coord[0]);
+        esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
     }
     if (abs(dados.coord[1]) <= 180 && dados.coord[1] != 0) {
-        sprintf(tmp, "%.6f", dados.coord[1]);
-        esp_mqtt_client_publish(client, _NEO_LNG_TOPIC, tmp, 0, 0, 0);
+        sprintf(data, "{gps_longitude:%.6f}", dados.coord[1]);
+        esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
     }
 }

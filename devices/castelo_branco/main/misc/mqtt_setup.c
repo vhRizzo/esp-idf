@@ -26,7 +26,11 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(__func__, "MQTT_EVENT_CONNECTED");
-        esp_mqtt_client_publish(client, MQTT_TRG_TOPIC, "MQTT Client Connected", 0, 0, 0);
+        char data[51];
+        char topic[51];
+        sprintf(topic, "%s/mqtttrig", CLIENT_ID);
+        sprintf(data, "{MQTT_Client_Connected:%s}", CLIENT_ID);
+        esp_mqtt_client_publish(client, topic, data, 0, 0, 0);
         break;
 
     case MQTT_EVENT_DISCONNECTED:
@@ -81,7 +85,7 @@ void mqtt_app_start(void)
         .uri = BROKER_URL,
         .task_prio = configMAX_PRIORITIES - 3,
         .task_stack = 4096,
-        .client_id = "castelo_branco",
+        .client_id = CLIENT_ID,
     };
 
     client = esp_mqtt_client_init(&mqtt_cfg);
