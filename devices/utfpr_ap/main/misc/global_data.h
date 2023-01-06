@@ -35,16 +35,7 @@
 
 /* MQTT */
 #define BROKER_URL      "mqtt://user1:gabriel@iot.coenc.ap.utfpr.edu.br"
-#define BME_TEMP_TOPIC  "utfpr_ap/_bme280/temp"
-#define BME_UMID_TOPIC  "utfpr_ap/_bme280/umid"
-#define BME_PRES_TOPIC  "utfpr_ap/_bme280/pres"
-#define DSM_PM10_TOPIC  "utfpr_ap/dsm501a/pm10"
-#define DSM_PM25_TOPIC  "utfpr_ap/dsm501a/pm25"
-#define _INMP_DB_TOPIC  "utfpr_ap/inmp441/_dB_"
-#define _NEO_LAT_TOPIC  "utfpr_ap/_neo6m_/_lat"
-#define _NEO_LNG_TOPIC  "utfpr_ap/_neo6m_/_lng"
-#define OTA_TRIG_TOPIC  "utfpr_ap/otatrig/_ota"
-#define MQTT_TRG_TOPIC  "utfpr_ap/mqtttrg/mqtt"
+#define CLIENT_ID       "utfpr_ap"
 
 /* OTA */
 #define OTA_FIRM_URL    "http://iot.coenc.ap.utfpr.edu.br/atualizar/utfpr_ap/school_monitor.bin"
