@@ -27,6 +27,11 @@ extern "C" {
 #define LORA_RX_PIN     GPIO_NUM_13 // (D13)
 #define DS18B20_PIN     GPIO_NUM_27 // (D27)
 #define BPW_ADC_PIN     GPIO_NUM_36 // (VP)
+/*  
+ *  O ESP32 tem 2 unidades de ADC, a unidade 2 possui algumas limitacoes, portanto e preferivel
+ *  a utilizacao da unidade 1.
+ *  A unidade 1 possui 7 canais disponiveis, presentes nos pinos 32 a 39.
+ */
 
 /* Portas UART */
 #define NEO_UART_PORT   UART_NUM_1
