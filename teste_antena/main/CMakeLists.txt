@@ -1,8 +1,0 @@
-idf_component_register(SRCS "main.cpp"
-            "components/src/Modem_SmartModular.cpp"
-            "components/src/bme280_setup.c"
-            "components/src/bme280.c"
-            "components/src/dsm501a_setup.c"
-            "components/src/global_data.cpp"
-            "components/src/neo6m_setup.c"
-            INCLUDE_DIRS "." "components/include")
