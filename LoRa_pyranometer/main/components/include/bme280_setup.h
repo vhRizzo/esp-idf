@@ -1,5 +1,7 @@
 /*
- * Adaptado do codigo de https://github.com/SFeli/ESP32_BME280_IDF/blob/master/main.c.
+ * Adaptado do codigo de https://github.com/SFeli/ESP32_BME280_IDF.
+ *
+ * Adapted from SFelis' code available at the link above with changes documented.
  */
 
 #ifndef BME280_SETUP_H_
