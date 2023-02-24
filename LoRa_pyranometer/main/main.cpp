@@ -1,4 +1,4 @@
-extern "C" {    /* Converte o códio .cpp para .c */
+extern "C" {    /* Converte o codigo .cpp para .c */
 
 #include "global_data.h"
 #include "Modem_SmartModular.hpp"
