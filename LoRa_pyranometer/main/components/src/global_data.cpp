@@ -1,6 +1,7 @@
 #include "global_data.h"
 #include "Modem_SmartModular.hpp"
 
+/* Cria o item inicializando todos os dados em -1 */
 dados_t dados = {
     .temperatura = -1,
     .umidade = -1,
@@ -11,17 +12,19 @@ dados_t dados = {
     .poeira_pm_25 = -1,
     .coord = {-1,-1}
 };
-char tmp[100];
-char rcv[1000];
-char rcv_gps[1000];
-uint16_t porta = 20;      //aqui deve-se escolher >=1 , sendo útil para indicar qual parte da aplicação pertence o dado obtido!!!!
-uint32_t rcv_size = 0;
-uint32_t send_size = 0;
-uint16_t porta_gps = 19;
-uint16_t porta_sol = 18;
-uint32_t rcv_gps_size = 0;
-Modem_SmartModular teste(LOR_UART_PORT);
-int cont_gps = (int)floor(CONTAGEM_GPS*(2./3.));
+char tmp[100];              // String temporaria para formatar os dados
+char rcv[1000];             // String para armazenar a resposta da LoRaWAN
+char rcv_gps[1000];         // Outra para a resposta do GPS
+uint16_t porta = 20;        // Aqui deve-se escolher >=1 , sendo útil para indicar qual parte da aplicação pertence o dado obtido!!!!
+uint32_t rcv_size = 0;      // Variavel para armazenar o tamanho da resposta
+uint32_t send_size = 0;     // E o tamanho dos dados enviados
+uint16_t porta_gps = 19;    // Porta utilizada para as coordenadas GPS
+uint16_t porta_sol = 18;    // Porta utilizada para os sensores relacionados ao piranômetro
+uint32_t rcv_gps_size = 0;  // Variavel para armazenar o tamanho da resposta ao envio das coordenadas GPS
+Modem_SmartModular teste(LOR_UART_PORT);    // Inicializa a classe da LoRaWAN utilizando um construtor com a porta UART a ser utilizada pelo ESP
+int cont_gps = (int)floor(CONTAGEM_GPS*(2./3.));    // Inicializa o contador de envio de coordenadas GPS em 2/3 do valor total, desta forma as coordenadas
+                                                    // nao serao enviadas imediatamente no inicio (pois o modulo GPS provavelmente nao tera sincronizado
+                                                    // com o satelite ainda), mas tambem nao espera um ciclo completo para enviar a primeira medida.
 
 #ifdef DSM501A_SENSOR
 dsm501a_t dsm_rcv;
