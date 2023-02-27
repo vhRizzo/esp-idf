@@ -1,7 +1,7 @@
 #include "global_data.h"
 #include "Modem_SmartModular.hpp"
 
-/* Cria o item inicializando todos os dados em -1 */
+/* Cria um item para armazenar os dados dos sensores inicializando todos os dados em -1 */
 dados_t dados = {
     .temperatura = -1,
     .umidade = -1,
@@ -25,7 +25,7 @@ Modem_SmartModular teste(LOR_UART_PORT);    // Inicializa a classe da LoRaWAN ut
 int cont_gps = (int)floor(CONTAGEM_GPS*(2./3.));    // Inicializa o contador de envio de coordenadas GPS em 2/3 do valor total, desta forma as coordenadas
                                                     // nao serao enviadas imediatamente no inicio (pois o modulo GPS provavelmente nao tera sincronizado
                                                     // com o satelite ainda), mas tambem nao espera um ciclo completo para enviar a primeira medida.
-
+/* Inicializa os itens que serao recebidos atraves das filas */
 #ifdef DSM501A_SENSOR
 dsm501a_t dsm_rcv;
 #endif
@@ -42,14 +42,15 @@ ds18b20_t dallas_rcv;
 bpw34_t bpw_rcv;
 #endif
 
+/* Esta tarefa apenas se mantem em um loop recebendo os itens armazenados nas filas */
 void rcv_data_task ( void *pvParameters )
 {
     while (1)
     {
         #ifdef DSM501A_SENSOR
-        if (xQueueReceive(dsm_queue, &dsm_rcv, portMAX_DELAY))
+        if (xQueueReceive(dsm_queue, &dsm_rcv, portMAX_DELAY))  // Ao receber um novo item pela fila...
         {
-            dados.poeira_pm_10 = dsm_rcv.poeira_pm_10;
+            dados.poeira_pm_10 = dsm_rcv.poeira_pm_10;          // Armazena os dados do item recebido no item de dados gerais
             dados.poeira_pm_25 = dsm_rcv.poeira_pm_25;
         }
         #endif
@@ -66,6 +67,11 @@ void rcv_data_task ( void *pvParameters )
         #ifdef NEO6M_SENSOR
         if (xQueueReceive(neo_queue, &neo_rcv, portMAX_DELAY))
         {
+            /* Por vezes, ao tentar ler os valores do GPS antes do modulo ter sincronizado com o satelite, ele enviara valores de lixo.
+             * Entao nas condicoes abaixo os valores sao filtrados para apenas atualizar caso a latitude esteja em -90 e 90 e a longitude
+             * entre -180 e 180, excluindo a coordenada 0 para ambos. O motivo de excluir o 0 se da por ele ser um dos valores de lixo
+             * enviado pelo modulo. Esta coordenada seria valida, mas e muito improvavel que seja necessaria, portanto foi decidido que
+             * e melhor desconsiderar este valor. */
             if (fabs(neo_rcv.coord[0]) > 0 && fabs(neo_rcv.coord[0]) <= 90)
                 dados.coord[0] = neo_rcv.coord[0];
             if (fabs(neo_rcv.coord[1]) > 0 && fabs(neo_rcv.coord[1]) <= 180)
@@ -89,17 +95,18 @@ void rcv_data_task ( void *pvParameters )
     }
 }
 
+/* Esta tarefa inicializa o modulo LoRa, e envia os dados recebidos para uma antena LoRa */
 void snd_data_task ( void *pvParameters )
 {
-    memset(rcv,0,1000);
-    memset(rcv_gps,0,1000);
+    memset(rcv,0,1000);     // Inicializa a string de resposta dos dados gerais da LoRa
+    memset(rcv_gps,0,1000); // E a de dados do gps
     
-    teste.OTAA_DEUI();
+    teste.OTAA_DEUI();      // Exibe o endereco MAC do modulo
     #ifdef SERIAL_DEBUG
-    ESP_LOGI(__func__, "%s", teste.OTAA_APPKEY());
+    ESP_LOGI(__func__, "%s", teste.OTAA_APPKEY());  // Exibe a chave de validacao do modulo
     #endif
 
-    if(strcmp(teste.auto_join(),"0")==0){
+    if(strcmp(teste.auto_join(),"0")==0){   // Verifica se o autojoin esta ativado, se nao estiver, o ativa
         #ifdef SERIAL_DEBUG
         ESP_LOGI("APP", "AutoJoin ativado: %s", teste.auto_join(1));
         #endif
@@ -110,48 +117,48 @@ void snd_data_task ( void *pvParameters )
         #endif
     }
 
-    vTaskDelay( (TEMPO_STARTUP*1000)/portTICK_PERIOD_MS );
+    vTaskDelay( (TEMPO_STARTUP*1000)/portTICK_PERIOD_MS ); // Delay necessario para que alguns sensores estejam em seu estado estavel
     while(1)
     {
-        vTaskDelay( (TEMPO_ANALISE*1000)/portTICK_PERIOD_MS );
-        char tmp[100];
-        sprintf(tmp, "%.2f,%.2f,%d;%.2f,%.2f", 
-                dados.temperatura, dados.umidade, (int)dados.pressao, 
-                dados.poeira_pm_10, dados.poeira_pm_25);
-        send_size = strlen(tmp);
+        vTaskDelay( (TEMPO_ANALISE*1000)/portTICK_PERIOD_MS );  // Delay para cada leitura
+        char tmp[100];                                          // String auxiliar para formatar os dados que serao enviados para a antena LoRa
+        sprintf(tmp, "%.2f,%.2f,%d;%.2f,%.2f",
+                dados.temperatura, dados.umidade, (int)dados.pressao,
+                dados.poeira_pm_10, dados.poeira_pm_25);        // String que contera as informacoes relacionadas ao ambiente
+        send_size = strlen(tmp);                                // Armazena o tamanho da string
         #ifdef SERIAL_DEBUG
         ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i | PORTA: %d", tmp, (int)send_size, porta);
         #endif
-        teste.enviar_receber(porta, tmp, send_size, rcv, &rcv_size);
+        teste.enviar_receber(porta, tmp, send_size, rcv, &rcv_size);    // Envia os dados na porta dos dados ambientais
         #ifdef SERIAL_DEBUG
         ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv, (int)rcv_size);
         #endif
 
         sprintf(tmp, "%.2f,%.2f", 
-                dados.dallas_temp, dados.irrad);
-        send_size = strlen(tmp);
+                dados.dallas_temp, dados.irrad);                // String que contera as informacoes relacionadas ao piranometro
+        send_size = strlen(tmp);                                // Armazena o tamanho da string
         #ifdef SERIAL_DEBUG
         ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i | PORTA: %d", tmp, (int)send_size, porta_sol);
         #endif
-        teste.enviar_receber(porta_sol, tmp, send_size, rcv, &rcv_size);
+        teste.enviar_receber(porta_sol, tmp, send_size, rcv, &rcv_size);// Envia os dados na porta dos dados do piranometro
         #ifdef SERIAL_DEBUG
         ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv, (int)rcv_size);
         #endif
 
         #ifdef NEO6M_SENSOR
-        cont_gps++;
-        if (cont_gps >= CONTAGEM_GPS) {
-            char tmp_gps[100];
-            sprintf(tmp_gps, "%.6f,%.6f", dados.coord[0], dados.coord[1]);
-            send_size = strlen(tmp_gps);
+        cont_gps++;                                         // Incrementa o contados do gps
+        if (cont_gps >= CONTAGEM_GPS) {                         // Se o contador for maior que a quantidade de contagem definida no header
+            char tmp_gps[100];                                  // Cria uma string propria para armazenar os dados do gps
+            sprintf(tmp_gps, "%.6f,%.6f", dados.coord[0], dados.coord[1]);  // Formata as coordenadas com precisao de 6 casas decimais
+            send_size = strlen(tmp_gps);                        // Armazena o tamanho da string
             #ifdef SERIAL_DEBUG
             ESP_LOGI(__func__, "ENVIOU = DADOS: %s | TAM: %i | PORTA: %d", tmp_gps, (int)send_size, porta_gps);
             #endif
-            teste.enviar_receber(porta_gps, tmp_gps, send_size, rcv_gps, &rcv_gps_size);
+            teste.enviar_receber(porta_gps, tmp_gps, send_size, rcv_gps, &rcv_gps_size);    // Envia os dados na porta relacionada ao gps
             #ifdef SERIAL_DEBUG
             ESP_LOGI(__func__, "RECEBEU = DADOS: %s | TAM: %i", rcv_gps, (int)rcv_gps_size);
             #endif
-            cont_gps = 0;
+            cont_gps = 0;                                       // Reinicia o contador do gps
         }
         #endif
     }
