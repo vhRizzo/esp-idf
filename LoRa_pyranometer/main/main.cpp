@@ -87,7 +87,7 @@ void app_main(void)
     #endif
     /* 
      * As tarefas abaixo sao de leitura e envio de dados, estas tarefas usarao as filas geradas acima para
-     * receber os itens para entao envia-los via LoRaWAN, portanto um e feito um atraso aqui para garantir que
+     * receber os itens para entao envia-los via LoRaWAN, portanto e feito um atraso aqui para garantir que
      * as filas ja estejam todas operantes, pois caso estas tarefas tentem ler um item de uma fila que ainda
      * nao existe, um erro fatal sera gerado, reiniciando o ESP.
      */
