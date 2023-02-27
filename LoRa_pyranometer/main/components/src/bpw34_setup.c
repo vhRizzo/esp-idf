@@ -40,6 +40,11 @@ void bpw34_task ( void *pvParameters )
         if (esp_timer_get_time() - now >= TEMPO_ANALISE * 1000000)  // Se tiver passado o tempo definido para o intervalo de medidas...
         {
             int res_raw = new_raw / mean_count; // Calcula a media das leituras
+            /* O ESP32 suporta tensao maxima de ate 3.3 V de entrada, E as leituras do ADC conseguem ler ate 12 bits, portanto
+             * o valor cru lido pelo ESP tem, idealmente, uma relacao linear de 0 a 4095 quando ler de 0 a 3.3 V.
+             * Porem na pratica a relacao nao e totalmente linear, como visto em https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/
+             * podendo ser necessaria a utilizacao de alguma forma de calibracao, ou ate mesmo a utilizacao de um modulo ADC dedicado.
+             * Ate que os testes sejam realizados, faremos uma conversao supondo que a relacao seja linear. */
             float voltage = (res_raw * 3.3 / 4095); // Converte o valor cru medido para um valor de tensao
             // TODO - Verificar se utilizar o recurso de calibracao da esp-idf retorna resultados mais consistentes
             bpw.irrad = voltage / (RF * (PD_AREA*1e-6) * PD_SENS);  // Calcula a irradiacao
