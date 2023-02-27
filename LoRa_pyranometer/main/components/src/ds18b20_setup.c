@@ -10,13 +10,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+     
+    Source code: <https://github.com/feelfreelinux/ds18b20>.
+    All changes documented below.
 */
 #include "global_data.h"
 
-#ifdef DS18B20_SENSOR
+#ifdef DS18B20_SENSOR	// This sensor may not be used when debugging, this statement controls this
 
-#include "ds18b20_setup.h"
+#include "ds18b20_setup.h"	// Includes moved to header
 
 // OneWire commands
 #define GETTEMP			0x44  // Tells device to take a temperature reading and put it on the scratchpad
@@ -57,7 +60,7 @@ uint8_t LastDiscrepancy;
 uint8_t LastFamilyDiscrepancy;
 bool LastDeviceFlag;
 
-QueueHandle_t ds18b20_queue;
+QueueHandle_t ds18b20_queue;	// Handler for the queue to send data
 
 /// Sends one bit to bus
 void ds18b20_write(char bit){
@@ -300,7 +303,7 @@ float ds18b20_get_temp(void) {
       {
         ds18b20_send_byte(0xCC);
         ds18b20_send_byte(0x44);
-        vTaskDelay(750 / portTICK_PERIOD_MS);
+        vTaskDelay(750 / portTICK_PERIOD_MS);	// freeRTOS doesn't use portTICK_RATE_MS anymore
         check=ds18b20_RST_PULSE();
         ds18b20_send_byte(0xCC);
         ds18b20_send_byte(0xBE);
@@ -319,7 +322,7 @@ float ds18b20_get_temp(void) {
 
 void ds18b20_init(int GPIO) {
 	DS_GPIO = GPIO;
-	esp_rom_gpio_pad_select_gpio(DS_GPIO);
+	esp_rom_gpio_pad_select_gpio(DS_GPIO);	// This was slightly changed in v5.0 esp-idf update
 	init = 1;
 }
 
@@ -462,17 +465,18 @@ bool search(uint8_t *newAddr, bool search_mode) {
 	return search_result;
 }
 
+/* This is new code using freeRTOS task, but kept simple. */
 void ds18b20_task ( void *pvParameters )
 {
-	ds18b20_init(DS18B20_PIN);
-	ds18b20_t dallas = {
+	ds18b20_init(DS18B20_PIN);	// Initializes the sensor
+	ds18b20_t dallas = {		// Initializes the item to be sent to the queue with it's data set at -1
 		.dallas_temp = -1
 	};
-	while (true)
+	while (true)			// Loops infinitely
 	{
-		vTaskDelay( (TEMPO_ANALISE*1000)/portTICK_PERIOD_MS );
-		dallas.dallas_temp = ds18b20_get_temp();
-		xQueueOverwrite(ds18b20_queue, &dallas);
+		vTaskDelay( (TEMPO_ANALISE*1000)/portTICK_PERIOD_MS );	// Delays a set amount
+		dallas.dallas_temp = ds18b20_get_temp();		// Get a new temperature reading
+		xQueueOverwrite(ds18b20_queue, &dallas);		// And send the data read to the queue
 	}
 }
 
