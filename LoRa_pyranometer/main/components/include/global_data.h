@@ -9,6 +9,8 @@ extern "C" {
 #define TEMPO_ANALISE   30  // segundos
 #define TEMPO_STARTUP   5   // segundos
 #define CONTAGEM_GPS    3  // a cada quantas coletas de dados serão enviadas as coordenadas GPS.
+    
+/* Comentar/remover os defines ira desabilitar os respectivos processos */
 #define DSM501A_SENSOR
 #define BME280_SENSOR
 #define NEO6M_SENSOR
@@ -65,13 +67,14 @@ void rcv_data_task ( void *pvParameters );
 void snd_data_task ( void *pvParameters );
 
 #ifdef DSM501A_SENSOR
-typedef struct __attribute__((__packed__))
+typedef struct __attribute__((__packed__))  // Cria uma struct/item com as variaveis necessarias para armazenar os dados de seu respectivo sensor
 {
     float poeira_pm_10;
     float poeira_pm_25;
 } dsm501a_t;
 
-extern QueueHandle_t dsm_queue;
+extern QueueHandle_t dsm_queue;             // Cria uma handler para a fila de recebimento de itens, marcado como "extern" para que o compilador saiba
+                                            // que ela sera inicializada por uma fonte externa.
 #endif
 
 #ifdef BME280_SENSOR
@@ -114,8 +117,8 @@ extern QueueHandle_t bpw34_queue;
 
 typedef struct __attribute__((__packed__)) //esse atributo informa ao compilador para utilizar o mínimo de memória para tipos dentro da struct ou da union
 {
-    float temperatura;     // 4 bytes
-    float umidade;         // 4 bytes
+    float temperatura;      // 4 bytes
+    float umidade;          // 4 bytes
     uint32_t pressao;       // 2 bytes
     float dallas_temp;      // 4 bytes
     float irrad;            // 4 bytes
