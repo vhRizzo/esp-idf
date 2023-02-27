@@ -12,11 +12,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    source: https://github.com/feelfreelinux/ds18b20
+    Source code: <https://github.com/feelfreelinux/ds18b20>.
+    All changes documented below.
 */
-#include "global_data.h"
+#include "global_data.h"	// In this project, all libs are included in the global_data header.
 
-#ifndef DS18B20_SETUP_H  
+#ifndef DS18B20_SETUP_H  	// Changed header name
 #define DS18B20_SETUP_H
 
 #define noInterrupts() portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;taskENTER_CRITICAL(&mux)
@@ -77,7 +78,7 @@ float ds18b20_get_temp(void);
 
 void reset_search();
 bool search(uint8_t *newAddr, bool search_mode);
-void ds18b20_task ( void *pvParameters );
+void ds18b20_task ( void *pvParameters );	// Added sensor task
 
 /* *INDENT-OFF* */
 #ifdef __cplusplus
@@ -85,4 +86,4 @@ void ds18b20_task ( void *pvParameters );
 #endif
 /* *INDENT-ON* */
 
-#endif /* DS18B20_SETUP_H */
+#endif /* DS18B20_SETUP_H */	// Added indication of what 'if' this is ending
