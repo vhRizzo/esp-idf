@@ -89,7 +89,7 @@ int8_t i2c_reg_write(uint8_t reg_addr, uint8_t *reg_data, uint32_t length, void 
     return iError;
 }
 
-/* Changed to microseconds to match Bosch's pattern, and to freeRTOS' delay method. */
+/* Changed to microseconds to match Bosch's pattern, also changed to freeRTOS' delay method. */
 void delay_us(uint32_t us, void *intf_ptr) { vTaskDelay((us/1000) / portTICK_PERIOD_MS); }
 
 void print_rslt(const char api_name[], int8_t rslt)
