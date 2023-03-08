@@ -40,7 +40,7 @@ void IRAM_ATTR change_v2_isr ( void *arg )
     if(gpio_estado == estado_anterior_v2) return;   // Se o estado anterior for igual ao estado atual, sai da funcao.
                                                     // Pode acontecer em momentos de transicao, como enquanto a media
                                                     // dos pulsos estiver sendo calculada.
-    else if (gpio_estado == 0) {                    // Se o esatdo atual for LOW, borda de descida
+    else if (gpio_estado == 0) {                    // Se o estado atual for LOW, borda de descida
         marca_falling_v2 = esp_timer_get_time();    // Armazena o momento da queda
         estado_anterior_v2 = 0;                     // E atualiza o estado anterior para o atual
     } else {                                        // Se o estado atual for HIGH, borda de subida
