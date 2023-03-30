@@ -43,7 +43,7 @@ void app_main(void)
 
     esp_wifi_stop(); // Interrompe o uso do WiFi (não será utilizado neste projeto)
 
-    // ***** Fazer apenas uma vez!!!! (Alterár as configuracoes da antena LoRa)
+    // ***** Fazer apenas uma vez!!!! (Alterar as configuracoes da antena LoRa)
     // Modem_SmartModular teste(UART_NUM_2);
     // teste.OTAA_APPEUI("00:00:00:00:00:00:00:00");
     // teste.OTAA_APPKEY("8C:17:01:D4:15:AB:D5:FB:09:58:CB:35:3E:F6:60:C1");
